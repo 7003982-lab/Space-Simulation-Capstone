@@ -4,7 +4,7 @@
 
 // Global Variables
 let g;
-object = []
+planets = []
 // let cam;
 // let camX = 0;
 // let camY = 0;
@@ -13,12 +13,12 @@ object = []
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
   angleMode(DEGREES)
-  object.push(new Planet(580,100, 2.4)); // Mercury
-  object.push(new Planet(-640,100, 6)); // Venus
-  object.push(new Planet(750,100, 6.2)); // Earth
-  object.push(new Planet(-1140,100, 3.4)); // Mars
-  object.push(new Planet(2050,100, 71.5)); // Jupiter
-  object.push(new Planet(-3000,100, 60)); // Saturn
+  planets.push(new Planet(580,0, 2.4)); // Mercury
+  planets.push(new Planet(-640,0, 6)); // Venus
+  planets.push(new Planet(750,0, 6.2)); // Earth
+  planets.push(new Planet(-1140,0, 3.4)); // Mars
+  planets.push(new Planet(2050,0, 71.5)); // Jupiter
+  planets.push(new Planet(-3000,0, 60)); // Saturn
   // cam = createCamera();
   // setCamera(cam);
 }
@@ -27,7 +27,7 @@ function draw() {
   background(0);
   star(0,0, 349);
   orbitControl()
-  for(let o of object){
+  for(let o of planets){
     o.allFunction();
   }
   pointLight(255,190,50, 0, 0, 0);
@@ -45,28 +45,23 @@ function star(x, y, d){
 
 class Planet{
   constructor(x,y,d){
-    this.pos = createVector(x,y);
-    this.vel = createVector(0);
     this.x = x;
     this.y = y;
     this.d = d;
+    this.pos = createVector(this.x,this.y);
+    this.vel = createVector((6.28*this.x)/100);
+    this.grav = createVector(1,1);
     // this.mass = m;
     
   }
 
-  // calcStar(){
-  //   this.grav = createVector(width/2, height/2);
-  // }
-
-  display(){
-    stroke(150,150,180)
-    fill(160,160,180);
-    push();
-    translate(this.x,0,0);
-    sphere(this.d)
-    pop();
+  calcStar(){
+    this.grav = createVector(0,0);
+    this.grav.sub(this.pos);
+    this.grav.normalize();
+    this.grav.mult(1);
   }
-
+ 
   orbit(){
     strokeWeight(5);
     stroke(220);
@@ -76,11 +71,23 @@ class Planet{
     pop();
   }
 
-  move(){
+ display(){
+    stroke(150,150,180)
+    fill(160,160,180);
+    push();
+    translate(this.pos.x,this.pos.y,0);
+    sphere(this.d)
+    pop();
+  }
 
+  move(){
+    this.vel.add(this.grav);
+    this.pos.add(this.vel);
   }
 
   allFunction(){
+    this.move();
+    this.calcStar();
     this.display();
     this.orbit();
   }
