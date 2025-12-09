@@ -49,7 +49,7 @@ class Planet{
     this.y = y;
     this.d = d;
     this.pos = createVector(this.x,this.y);
-    this.vel = createVector((6.28*this.x)/1000),(6.28*this.y)/500;
+    this.vel = createVector((6.28*this.x)/1000),(6.28*this.y)/300;
     this.grav = createVector(50,1);
     // this.mass = m;
     
