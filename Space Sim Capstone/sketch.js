@@ -13,12 +13,12 @@ planets = []
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
   angleMode(DEGREES)
-  planets.push(new Planet(580,0, 2.4)); // Mercury
-  planets.push(new Planet(-640,0, 6)); // Venus
-  planets.push(new Planet(750,0, 6.2)); // Earth
-  planets.push(new Planet(-1140,0, 3.4)); // Mars
-  planets.push(new Planet(2050,0, 71.5)); // Jupiter
-  planets.push(new Planet(-3000,0, 60)); // Saturn
+  // planets.push(new Planet(580,0, 2.4)); // Mercury
+  // planets.push(new Planet(-640,0, 6)); // Venus
+  // planets.push(new Planet(750,0, 6.2)); // Earth
+  // planets.push(new Planet(-1140,0, 3.4)); // Mars
+  // planets.push(new Planet(1450,1450, 71.5)); // Jupiter
+  planets.push(new Planet(-2121,-2121, 60)); // Saturn
   // cam = createCamera();
   // setCamera(cam);
 }
@@ -49,8 +49,8 @@ class Planet{
     this.y = y;
     this.d = d;
     this.pos = createVector(this.x,this.y);
-    this.vel = createVector((6.28*this.x)/100);
-    this.grav = createVector(1,1);
+    this.vel = createVector((6.28*this.x)/1000),(6.28*this.y)/500;
+    this.grav = createVector(50,1);
     // this.mass = m;
     
   }
