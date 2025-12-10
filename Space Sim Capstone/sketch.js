@@ -3,14 +3,19 @@
 // December 1, 2025
 
 // Global Variables
-let g;
-planets = []
+let G = 6.67e-11;
+let sun;
+planets = [];
 // let cam;
 // let camX = 0;
 // let camY = 0;
 // let camZ = 0;
 
+
+
+
 function setup() {
+  loadAssets();
   createCanvas(windowWidth, windowHeight, WEBGL);
   angleMode(DEGREES)
   // planets.push(new Planet(580,0, 2.4)); // Mercury
@@ -18,15 +23,21 @@ function setup() {
   // planets.push(new Planet(750,0, 6.2)); // Earth
   // planets.push(new Planet(-1140,0, 3.4)); // Mars
   // planets.push(new Planet(1450,1450, 71.5)); // Jupiter
-  planets.push(new Planet(-2121,-2121, 60)); // Saturn
-  // cam = createCamera();
+  planets.push(new Planet(-2121,-2121, 60, 5.67e26)); // Saturn
+  // cam = createCamera();x
   // setCamera(cam);
 }
+
+async function loadAssets(){
+  sun = await loadModel("assets/sun.obj");
+}
+
 
 function draw() {
   background(0);
   star(0,0, 349);
-  orbitControl()
+  orbitControl();
+  model(sun);
   for(let o of planets){
     o.allFunction();
   }
@@ -44,15 +55,14 @@ function star(x, y, d){
 }
 
 class Planet{
-  constructor(x,y,d){
+  constructor(x,y,d,m){
     this.x = x;
     this.y = y;
     this.d = d;
+    this.m = m;
     this.pos = createVector(this.x,this.y);
-    this.vel = createVector((6.28*this.x)/1000),(6.28*this.y)/300;
-    this.grav = createVector(50,1);
-    // this.mass = m;
-    
+    this.vel = createVector((G*this.m/(this.x*10e11))^(1/2)), ((G*this.m/(this.y*10e11))^(1/2));
+    this.grav = createVector(1, 50);
   }
 
   calcStar(){
@@ -67,16 +77,17 @@ class Planet{
     stroke(220);
     noFill();
     push();
-    circle(0, 0, (this.x)*2);
+    circle(0, 0, (this.x)*3);
     pop();
   }
 
  display(){
-    stroke(150,150,180)
+    stroke(150,150,180);
     fill(160,160,180);
     push();
     translate(this.pos.x,this.pos.y,0);
-    sphere(this.d)
+    sphere(this.d);
+    console.log(this.pos.x, this.pos.y)
     pop();
   }
 
