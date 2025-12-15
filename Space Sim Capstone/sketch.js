@@ -5,6 +5,7 @@
 // Global Variables
 let G = 6.67e-11;
 let sun;
+let sunMass = 2e30;
 planets = [];
 // let cam;
 // let camX = 0;
@@ -18,14 +19,12 @@ function setup() {
   loadAssets();
   createCanvas(windowWidth, windowHeight, WEBGL);
   angleMode(DEGREES)
-  // planets.push(new Planet(580,0, 2.4)); // Mercury
-  // planets.push(new Planet(-640,0, 6)); // Venus
-  // planets.push(new Planet(750,0, 6.2)); // Earth
-  // planets.push(new Planet(-1140,0, 3.4)); // Mars
-  // planets.push(new Planet(1450,1450, 71.5)); // Jupiter
-  planets.push(new Planet(-2121,-2121, 60, 5.67e26)); // Saturn
-  // cam = createCamera();x
-  // setCamera(cam);
+  planets.push(new Planet(580,0, 2.4, 3.3e23)); // Mercury
+  planets.push(new Planet(640,0, 6, 4.9e24)); // Venus
+  planets.push(new Planet(750,0, 6.2, 5.97e24)); // Earth
+  planets.push(new Planet(1140,0, 3.4, 6.4e23)); // Mars
+  planets.push(new Planet(1450, 0, 71.5, 1.89e27)); // Jupiter
+  planets.push(new Planet(2860, 0, 60, 5.67e26)); // Saturn
 }
 
 async function loadAssets(){
@@ -41,11 +40,10 @@ function draw() {
   for(let o of planets){
     o.allFunction();
   }
-  pointLight(255,190,50, 0, 0, 0);
-  // cam.setPosition(camX,camY,camZ);
-  // if(keyIsDown(RIGHT_ARROW)){
-  //   camX += 100;
-  // }
+  stroke("red");
+  line(0,0,1000,0);
+  stroke("blue");
+  line(0,0,0,1000);
 }
 
 function star(x, y, d){
@@ -61,15 +59,15 @@ class Planet{
     this.d = d;
     this.m = m;
     this.pos = createVector(this.x,this.y);
-    this.vel = createVector((G*this.m/(this.x*10e11))^(1/2)), ((G*this.m/(this.y*10e11))^(1/2));
-    this.grav = createVector(1, 50);
+    this.vel = createVector(0, (sqrt(G*this.m/(this.x*10e11)))); // ((G*m)/r)^1/2
+    this.gravForce = (((G*(this.m*sunMass))/(this.x*10e11)**2))
   }
 
   calcStar(){
     this.grav = createVector(0,0);
     this.grav.sub(this.pos);
     this.grav.normalize();
-    this.grav.mult(1);
+    this.grav.mult(this.gravForce/this.mass);
   }
  
   orbit(){
@@ -87,7 +85,7 @@ class Planet{
     push();
     translate(this.pos.x,this.pos.y,0);
     sphere(this.d);
-    console.log(this.pos.x, this.pos.y)
+    //console.log(this.pos.x, this.pos.y)
     pop();
   }
 
