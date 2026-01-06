@@ -3,7 +3,7 @@
 // December 1, 2025
 
 // Global Variables
-let G = 6.67e-11;
+let G = 1;
 let sun;
 let sunT;
 let mercuryT;
@@ -11,10 +11,9 @@ let venusT;
 let earthT;
 let marsT;
 let jupiterT;
-let sunMass = 2e30;
+let sunMass = 1;
 let planets = [];
-let sunD = 350
-;
+let sunD = 200;
 
 
 
@@ -24,12 +23,12 @@ async function setup() {
   //frameRate(1);
   createCanvas(windowWidth, windowHeight, WEBGL);
   angleMode(DEGREES);
-  planets.push(new Planet(57.9, 0, 2.4, 3.3e23, 20, mercuryT)); // Mercury
-  planets.push(new Planet(108, 0, 6, 4.9e24, 20, venusT)); // Venus
-  planets.push(new Planet(149, 0, 6.3, 5.97e24, 20, earthT)); // Earth
-  planets.push(new Planet(227, 0, 3.4, 6.4e23, 20, marsT)); // Mars
-  planets.push(new Planet(778, 0, 70, 1.89e27, 30, jupiterT)); // Jupiter
-  planets.push(new Planet(1429, 0, 58, 5.67e26, 60, mercuryT)); // Saturn
+  planets.push(new Planet(39, 2.4, 3.3e23, mercuryT, 0)); // Mercury
+  planets.push(new Planet(72, 6, 4.9e24, venusT, 0)); // Venus
+  planets.push(new Planet(100, 6.3, 5.97e24, earthT, 0)); // Earth
+  planets.push(new Planet(152, 3.4, 6.4e23, marsT, 0)); // Mars
+  planets.push(new Planet(520, 70, 1.89e27, jupiterT, 0)); // Jupiter
+  planets.push(new Planet(954, 58, 5.67e26, saturnT, 1)); // Saturn
 }
 
 async function loadAssets(){
@@ -39,6 +38,9 @@ async function loadAssets(){
   earthT = await loadImage("assets/textures/earth.jpg");
   marsT = await loadImage("assets/textures/mars.jpg");
   jupiterT = await loadImage("assets/textures/jupiter.jpg");
+  saturnT = await loadImage("assets/textures/saturn.jpg");
+  // uranusT = await loadImage("assets/textures/uranus.jpg");
+  // neptuneT = await loadImage("assets/textures/neptune.jpg");
 }
 
 function draw() {
@@ -72,24 +74,27 @@ function star(x, y, d){
 }
 
 class Planet{
-  constructor(x,y,d,m,vl,t){
+  constructor(x,d,m,t,ring){
+    let r = this.pos.mag();
     this.x = x;
-    this.y = y;
     this.d = d;
     this.m = m;
     this.t = t;
-    this.vl = vl;
-    this.pos = createVector(this.x+ sunD, this.y);
-    this.vel = createVector(0, (sqrt(G*sunMass/(this.x*10e13)))); // ((G*m)/r)^1/2
-    this.gravForce = (((G*(this.m*sunMass))/((this.x*10e11)**2)))
+    this.ring = ring;
+    this.pos = createVector(this.x + sunD, 0);
+    this.vel = createVector(0, sqrt(G  * sunMass / r)); // ((G*m)/r)^1/2
     this.vel.limit(this.vl);
+    
   }
 
   calcStar(){
-    this.grav = createVector(0,0);
-    this.grav.sub(this.pos);
-    this.grav.normalize();
-    this.grav.mult(this.gravForce/this.mass);
+    let r = this.pos.mag();
+    let forceMag = -G * sunMass / (r*r);
+    this.grav = this.pos.copy().normalize().mult(forceMag);
+    // this.grav = createVector(0,0);
+    // this.grav.sub(this.pos);
+    // this.grav.normalize();
+    // this.grav.mult(this.gravForce/this.mass);
   }
  
   orbit(){
@@ -103,24 +108,27 @@ class Planet{
 
  display(){
     //stroke(150,150,180);
-    
     push();
     translate(this.pos.x,this.pos.y,0);
     noStroke();
     //fill(0);
     texture(this.t);
     sphere(this.d);
+    if(this.ring === 1){
+      torus(137, 60, 24, 2)
+    }
     //console.log(this.pos.x, this.pos.y)
     pop();
   }
 
-  move(){
-    this.vel.add(this.grav);
-    this.pos.add(this.vel);
+  move(dt){
+    this.vel.add(p5.Vector.mult(this.grav, dt));
+    this.pos.add(p5.Vector.mult(this.vel, dt));
   }
 
   allFunction(){
-    this.move();
+    let dt = 0.01
+    this.move(dt);
     this.calcStar();
     this.display();
     this.orbit();
