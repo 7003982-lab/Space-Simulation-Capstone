@@ -3,7 +3,9 @@
 // December 1, 2025
 
 // Global Variables
-let G = 1;
+const G = 1;
+const sunMass = 1;
+const dt = 50
 let sun;
 let sunT;
 let mercuryT;
@@ -11,10 +13,11 @@ let venusT;
 let earthT;
 let marsT;
 let jupiterT;
-let sunMass = 1;
+let uranusT;
+let neptuneT;
+let satRingT;
 let planets = [];
 let sunD = 200;
-
 
 
 
@@ -23,12 +26,15 @@ async function setup() {
   //frameRate(1);
   createCanvas(windowWidth, windowHeight, WEBGL);
   angleMode(DEGREES);
-  planets.push(new Planet(39, 2.4, 3.3e23, mercuryT, 0)); // Mercury
-  planets.push(new Planet(72, 6, 4.9e24, venusT, 0)); // Venus
-  planets.push(new Planet(100, 6.3, 5.97e24, earthT, 0)); // Earth
-  planets.push(new Planet(152, 3.4, 6.4e23, marsT, 0)); // Mars
-  planets.push(new Planet(520, 70, 1.89e27, jupiterT, 0)); // Jupiter
-  planets.push(new Planet(954, 58, 5.67e26, saturnT, 1)); // Saturn
+  //                      x,  d,    t,      ring
+  planets.push(new Planet(39, 2.4, mercuryT, 0)); // Mercury
+  planets.push(new Planet(72, 6, venusT, 0)); // Venus
+  planets.push(new Planet(100, 6.3, earthT, 0)); // Earth
+  planets.push(new Planet(152, 3.4, marsT, 0)); // Mars
+  planets.push(new Planet(520, 70, jupiterT, 0)); // Jupiter
+  planets.push(new Planet(954, 58, saturnT, 1)); // Saturn
+  planets.push(new Planet(1922, 25, uranusT, 2)) // Uranus
+  planets.push(new Planet(3007, 24, neptuneT, 0)) // Neptune
 }
 
 async function loadAssets(){
@@ -39,8 +45,9 @@ async function loadAssets(){
   marsT = await loadImage("assets/textures/mars.jpg");
   jupiterT = await loadImage("assets/textures/jupiter.jpg");
   saturnT = await loadImage("assets/textures/saturn.jpg");
-  // uranusT = await loadImage("assets/textures/uranus.jpg");
-  // neptuneT = await loadImage("assets/textures/neptune.jpg");
+  uranusT = await loadImage("assets/textures/uranus.jpg");
+  neptuneT = await loadImage("assets/textures/neptune.jpg");
+  satRingT = await loadImage("assets/textures/saturnring2.jpg");
 }
 
 function draw() {
@@ -74,23 +81,20 @@ function star(x, y, d){
 }
 
 class Planet{
-  constructor(x,d,m,t,ring){
-    let r = this.pos.mag();
+  constructor(x,d,t,ring){
     this.x = x;
     this.d = d;
-    this.m = m;
     this.t = t;
     this.ring = ring;
-    this.pos = createVector(this.x + sunD, 0);
-    this.vel = createVector(0, sqrt(G  * sunMass / r)); // ((G*m)/r)^1/2
-    this.vel.limit(this.vl);
-    
+    this.pos = createVector(this.x + sunD, 0, 0);
+    let r = this.pos.mag();
+    this.vel = createVector(0, 0, sqrt(G  * sunMass / r)); // ((G*m)/r)^1/2
   }
 
   calcStar(){
     let r = this.pos.mag();
-    let forceMag = -G * sunMass / (r*r);
-    this.grav = this.pos.copy().normalize().mult(forceMag);
+    let accelMag = -G * sunMass / (r*r);
+    this.acc = this.pos.copy().normalize().mult(accelMag);
     // this.grav = createVector(0,0);
     // this.grav.sub(this.pos);
     // this.grav.normalize();
@@ -102,6 +106,7 @@ class Planet{
     stroke(220);
     noFill();
     push();
+    rotateX(90);
     circle(0, 0, (this.x+sunD)*2);
     pop();
   }
@@ -109,29 +114,41 @@ class Planet{
  display(){
     //stroke(150,150,180);
     push();
-    translate(this.pos.x,this.pos.y,0);
+    translate(this.pos.x, 0, this.pos.z);
     noStroke();
     //fill(0);
     texture(this.t);
     sphere(this.d);
     if(this.ring === 1){
-      torus(137, 60, 24, 2)
+      push();
+      rotateX(90);
+      texture(satRingT);
+      torus(137, 60, 100, 2)
+      pop();
+    }
+    else if(this.ring === 2){
+      push();
+      rotateX(90);
+      texture(satRingT);
+      torus(137, 60, 100, 2)
+      pop();
     }
     //console.log(this.pos.x, this.pos.y)
     pop();
   }
 
   move(dt){
-    this.vel.add(p5.Vector.mult(this.grav, dt));
+    this.vel.add(p5.Vector.mult(this.acc, dt / 2));
     this.pos.add(p5.Vector.mult(this.vel, dt));
+    this.calcStar();
+    this.vel.add(p5.Vector.mult(this.acc, dt /2));
   }
 
   allFunction(){
-    let dt = 0.01
-    this.move(dt);
     this.calcStar();
+    this.move(dt);
     this.display();
-    this.orbit();
+    // this.orbit();
   }
   
 }
