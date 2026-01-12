@@ -18,32 +18,26 @@ let neptuneT;
 let satRingT;
 let planets = [];
 let sunD = 200;
-let gui;
-let timeS;
 
 
 
 async function setup() {
+
   await loadAssets();
-  push(windowWidth*.8,0);
-  createCanvas(windowWidth, windowHeight);
-  fill(150);
-  rect(windowWidth*0.8, windowHeight);
-  pop();
-  createCanvas(windowWidth*0.8, windowHeight, WEBGL);
+ 
+  const canvas = createCanvas(windowWidth*0.75, windowHeight, WEBGL);
+  canvas.parent("canvas-container");
   angleMode(DEGREES);
-  gui = createGui();
-  timeS = createSlider("Time Slider", 0, 0, 100, 20, -50, 200);
-  
-  //                      x,  d,    t,      ring
-  planets.push(new Planet(39, 2.4, mercuryT, 0, 0)); // Mercury
-  planets.push(new Planet(72, 6, venusT, 177.4, 0)); // Venus
-  planets.push(new Planet(100, 6.3, earthT, -23.4, 0)); // Earth
-  planets.push(new Planet(152, 3.4, marsT, -25.2, 0)); // Mars
-  planets.push(new Planet(520, 70, jupiterT, -3, 0)); // Jupiter
-  planets.push(new Planet(954, 58, saturnT, -26.7, 1)); // Saturn
-  planets.push(new Planet(1922, 25, uranusT, 97.8, 2)) // Uranus
-  planets.push(new Planet(3007, 24, neptuneT, -28.3, 0)) // Neptune
+   
+  //                      x,  d,    t,    angle, ring
+  planets.push(new Planet(39, 2.4, mercuryT, 0, 1408, 0)); // Mercury
+  planets.push(new Planet(72, 6, venusT, 177.4, 5832, 0)); // Venus
+  planets.push(new Planet(100, 6.3, earthT, -23.4, 24, 0)); // Earth
+  planets.push(new Planet(152, 3.4, marsT, -25.2, 25, 0)); // Mars
+  planets.push(new Planet(520, 70, jupiterT, -3, 10, 0)); // Jupiter
+  planets.push(new Planet(954, 58, saturnT, -26.7, 11, 1)); // Saturn
+  planets.push(new Planet(1922, 25, uranusT, 97.8, 17, 2)) // Uranus
+  planets.push(new Planet(3007, 24, neptuneT, -28.3, 16, 0)) // Neptune
 }
 
 async function loadAssets(){
@@ -65,12 +59,13 @@ function draw() {
   orbitControl();
   push();
   scale(100);
-  
   pop();
-  drawGui();
   for(let o of planets){
     o.allFunction();
   }
+
+  let timeSlider = document.getElementById("timeSlider").value;
+  dt = timeSlider;
 
   stroke("red"); //x-axis
   line(0,0,1000,0);
@@ -79,6 +74,10 @@ function draw() {
   stroke("green");
   line(0,0,0,0,0,1000); //z-axis
 }
+
+// function addPlanet(){
+  
+// }
 
 function star(d){
   //stroke(225, 180,50);
@@ -90,15 +89,19 @@ function star(d){
 }
 
 class Planet{
-  constructor(x,d,t,theta,ring){
+  constructor(x,d,t,theta,rotHr,ring){
     this.x = x;
     this.d = d;
     this.t = t;
     this.theta = theta;
+    this.rotHr = rotHr;
     this.ring = ring;
+    
     this.pos = createVector(this.x + sunD, 0, 0);
     let r = this.pos.mag();
     this.vel = createVector(0, 0, sqrt(G  * sunMass / r)); // ((G*m)/r)^1/2
+    this.spin = 0;        // current rotation angle
+    this.spinRate = (360/this.rotHr/3600); 
   }
 
   calcStar(){
@@ -121,15 +124,27 @@ class Planet{
     pop();
   }
 
-  // rotation(dt){
-  //   rotateZ();
-  // }
+  move(dt){
+    this.vel.add(p5.Vector.mult(this.acc, dt / 2));
+    this.pos.add(p5.Vector.mult(this.vel, dt));
+    this.calcStar();
+    this.vel.add(p5.Vector.mult(this.acc, dt /2));
+  }
+
+
 
   display(){
     //stroke(150,150,180);
     push();
     translate(this.pos.x, 0, this.pos.z);
+
+    // Axis tilt
     rotateZ(this.theta);
+
+    // Spin (day/night)
+    
+    this.spin += this.spinRate *dt;
+    rotateY(this.spin);
 
     noStroke();
     //fill(0);
@@ -158,19 +173,14 @@ class Planet{
     pop();
   }
 
-  move(dt){
-    this.vel.add(p5.Vector.mult(this.acc, dt / 2));
-    this.pos.add(p5.Vector.mult(this.vel, dt));
-    this.calcStar();
-    this.vel.add(p5.Vector.mult(this.acc, dt /2));
-  }
+ 
 
   allFunction(){
     this.calcStar();
     this.move(-dt);
     this.display();
     // this.orbit();
-    // this.rotation(-dt);
+
   }
   
 }
