@@ -5,7 +5,8 @@
 // Global Variables
 const G = 1;
 const sunMass = 1;
-let dt = 50
+let dt = 1;
+let dt2 = 0;
 let sun;
 let sunT;
 let mercuryT;
@@ -29,7 +30,7 @@ async function setup() {
   canvas.parent("canvas-container");
   angleMode(DEGREES);
    
-  //                      x,  d,    t,    angle, ring
+  //                      x,  d,    t,    angle, rotHr, ring
   planets.push(new Planet(39, 2.4, mercuryT, 0, 1408, 0)); // Mercury
   planets.push(new Planet(72, 6, venusT, 177.4, 5832, 0)); // Venus
   planets.push(new Planet(100, 6.3, earthT, -23.4, 24, 0)); // Earth
@@ -101,7 +102,7 @@ class Planet{
     let r = this.pos.mag();
     this.vel = createVector(0, 0, sqrt(G  * sunMass / r)); // ((G*m)/r)^1/2
     this.spin = 0;        // current rotation angle
-    this.spinRate = (360/this.rotHr/3600); 
+    this.spinRate = (360/this.rotHr); 
   }
 
   calcStar(){
