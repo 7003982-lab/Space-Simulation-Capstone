@@ -3,11 +3,18 @@
 // December 1, 2025
 
 // Global Variables
+
+// Physics Constants
 const G = 1;
 const sunMass = 1;
-let dt = 1;
-let dt2 = 0;
-let sun;
+let sunD = 200;
+
+// Time
+let dt = 100;
+let timeBox;
+let timeSlider;
+
+// Planet Textures
 let sunT;
 let mercuryT;
 let venusT;
@@ -17,18 +24,19 @@ let jupiterT;
 let uranusT;
 let neptuneT;
 let satRingT;
+
+// Planets Array
 let planets = [];
-let sunD = 200;
 
 
-
-async function setup() {
+async function setup(){
 
   await loadAssets();
  
   const canvas = createCanvas(windowWidth*0.75, windowHeight, WEBGL);
   canvas.parent("canvas-container");
   angleMode(DEGREES);
+  textureMode(NORMAL);
    
   //                      x,  d,    t,    angle, rotHr, ring
   planets.push(new Planet(39, 2.4, mercuryT, 0, 1408, 0)); // Mercury
@@ -41,7 +49,7 @@ async function setup() {
   planets.push(new Planet(3007, 24, neptuneT, -28.3, 16, 0)) // Neptune
 }
 
-async function loadAssets(){
+async function loadAssets(){ // Pre load planet textures
   sunT = await loadImage("assets/textures/sun.jpg");
   mercuryT = await loadImage("assets/textures/mercury.jpg");
   venusT = await loadImage("assets/textures/venus.jpg");
@@ -51,22 +59,25 @@ async function loadAssets(){
   saturnT = await loadImage("assets/textures/saturn.jpg");
   uranusT = await loadImage("assets/textures/uranus.jpg");
   neptuneT = await loadImage("assets/textures/neptune.jpg");
-  satRingT = await loadImage("assets/textures/saturnring2.jpg");
+  satRingT = await loadImage("assets/textures/saturnring.jpg");
+  uranusRingT = await loadImage("assets/textures/uranusring.jpg");
 }
 
 function draw() {
   background(0);
   star(sunD);
-  orbitControl();
-  push();
-  scale(100);
-  pop();
+
+  orbitControl(); // allows camera to orbit and move
+
   for(let o of planets){
     o.allFunction();
   }
 
-  let timeSlider = document.getElementById("timeSlider").value;
+  timeSlider = document.getElementById("timeSlider").value;
   dt = timeSlider;
+
+  // timeBox = document.getElementById("timeBox").value;
+
 
   stroke("red"); //x-axis
   line(0,0,1000,0);
@@ -80,14 +91,34 @@ function draw() {
   
 // }
 
+// function keyPressed(){
+//   if(key === " "){
+//     dt = timeBox;
+//     timeSlider = timeBox;
+//   }
+// }
+
 function star(d){
-  //stroke(225, 180,50);
-  noStroke();
-  fill(0);
   texture(sunT);
+  noStroke();
   sphere(d, 100, 100);
-  
 }
+
+// Credit: ChatGPT
+function drawRing(innerR, outerR, tex, detail) {
+  // angleMode(RADIANS);
+  texture(tex);
+  beginShape(TRIANGLE_STRIP);
+  for (let i = 0; i <= detail; i++) {
+    let a = 360 * i / detail;
+    let u = i / detail;
+
+    vertex(cos(a) * outerR, 0, sin(a) * outerR, u, 0);
+    vertex(cos(a) * innerR, 0, sin(a) * innerR, u, 1);
+  }
+  endShape(CLOSE);
+}
+
 
 class Planet{
   constructor(x,d,t,theta,rotHr,ring){
@@ -98,7 +129,7 @@ class Planet{
     this.rotHr = rotHr;
     this.ring = ring;
     
-    this.pos = createVector(this.x + sunD, 0, 0);
+    this.pos = createVector(this.x + sunD, 0, 0); // vector for g calcs in x-axis
     let r = this.pos.mag();
     this.vel = createVector(0, 0, sqrt(G  * sunMass / r)); // ((G*m)/r)^1/2
     this.spin = 0;        // current rotation angle
@@ -106,22 +137,16 @@ class Planet{
   }
 
   calcStar(){
-    let r = this.pos.mag();
-    let accelMag = -G * sunMass / (r*r);
-    this.acc = this.pos.copy().normalize().mult(accelMag);
-    // this.grav = createVector(0,0);
-    // this.grav.sub(this.pos);
-    // this.grav.normalize();
-    // this.grav.mult(this.gravForce/this.mass);
+    let r = this.pos.mag(); // sun to planet distance
+    let accelMag = -G * sunMass / (r*r); // gravity acceleration
+    this.acc = this.pos.copy().normalize().mult(accelMag); // force acting on planets
   }
  
-  orbit(){
-    strokeWeight(5);
-    stroke(220);
-    noFill();
+  orbit(){ // adds planetary orbit trails 
     push();
-    rotateX(90);
-    circle(0, 0, (this.x+sunD)*2);
+    strokeWeight(2);
+    stroke(220);
+    line(this.pos.x, this.pos.y, this.pos.x+1, this.pos.y);
     pop();
   }
 
@@ -156,16 +181,18 @@ class Planet{
     // Ring Structures
     if(this.ring === 1){  // Saturn
       push();
-      rotateX(90);
-      texture(satRingT);
-      torus(137, 60, 100, 2)
+      // rotateX(90);
+      drawRing(67, 137, satRingT, 250)
+      // texture(satRingT);
+      // torus(137, 60, 100, 2)
       pop();
     }
     else if(this.ring === 2){ // Uranus
       push();
-      rotateX(90);
-      texture(satRingT);
-      torus(60, 23, 100, 2)
+      drawRing(37, 60, uranusRingT, 200)
+      // rotateX(90);
+      // texture(satRingT);
+      // torus(60, 23, 100, 2)
       pop();
     }
 
@@ -180,7 +207,7 @@ class Planet{
     this.calcStar();
     this.move(-dt);
     this.display();
-    // this.orbit();
+    //this.orbit();
 
   }
   
