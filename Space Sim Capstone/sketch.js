@@ -10,8 +10,8 @@ const sunMass = 1;
 let sunD = 200;
 
 // Time
-let dt = 100;
-let timeBox;
+let dt = 0;
+let timeBox = dt;
 let timeSlider;
 
 // Planet Textures
@@ -28,6 +28,9 @@ let satRingT;
 // Planets Array
 let planets = [];
 
+// Orbit 
+let orbit = [];
+let orbitCheckBox;
 
 async function setup(){
 
@@ -73,12 +76,13 @@ function draw() {
     o.allFunction();
   }
 
-  timeSlider = document.getElementById("timeSlider").value;
-  dt = timeSlider;
-
-  // timeBox = document.getElementById("timeBox").value;
+  // Checkbox
+  //orbitCheckBox = document.getElementById("orbitCheckBox").checked;
 
 
+  // Slider
+  dt = document.getElementById("timeSlider").value;
+  
   stroke("red"); //x-axis
   line(0,0,1000,0);
   stroke("blue");
@@ -91,12 +95,20 @@ function draw() {
   
 // }
 
-// function keyPressed(){
-//   if(key === " "){
-//     dt = timeBox;
-//     timeSlider = timeBox;
-//   }
-// }
+function mouseDragged(){  
+  // Slider is dragged
+  let sliderValue = document.getElementById("timeSlider").value
+  document.getElementById("timeTextBox").value = sliderValue;
+}
+
+function keyPressed(){
+  if(keyCode === 13){   // ENTER is pressed
+    timeBox = parseInt(document.getElementById("timeTextBox").value);
+    timeBox = constrain(timeBox, -500, 500);
+    document.getElementById("timeSlider").value = timeBox;
+    document.getElementById("timeTextBox").value = timeBox;
+  }
+}
 
 function star(d){
   texture(sunT);
@@ -134,6 +146,9 @@ class Planet{
     this.vel = createVector(0, 0, sqrt(G  * sunMass / r)); // ((G*m)/r)^1/2
     this.spin = 0;        // current rotation angle
     this.spinRate = (360/this.rotHr); 
+
+    this.planetOrbit = [];
+    this.maxOrbit = 2*PI*this.x;
   }
 
   calcStar(){
@@ -144,10 +159,25 @@ class Planet{
  
   orbit(){ // adds planetary orbit trails 
     push();
-    strokeWeight(2);
     stroke(220);
-    line(this.pos.x, this.pos.y, this.pos.x+1, this.pos.y);
+    strokeWeight(1);
+    noFill();
+
+    beginShape();
+    for (let p of this.planetOrbit) {
+      vertex(p.x, 0, p.z);
+    }
+    endShape();
+
     pop();
+  }
+
+  updateOrbit() {
+    this.planetOrbit.push(createVector(this.pos.x, 0, this.pos.z));
+  
+    if (this.planetOrbit.length > this.maxOrbit) {
+      this.planetOrbit.shift();
+    }
   }
 
   move(dt){
@@ -207,7 +237,9 @@ class Planet{
     this.calcStar();
     this.move(-dt);
     this.display();
-    //this.orbit();
+    this.updateOrbit();
+    this.orbit();
+    
 
   }
   
