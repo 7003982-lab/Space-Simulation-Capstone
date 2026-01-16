@@ -76,8 +76,8 @@ function draw() {
     o.allFunction();
   }
 
-  // Checkbox
-  //orbitCheckBox = document.getElementById("orbitCheckBox").checked;
+  // // Checkbox
+  // orbitCheckBox = document.getElementById("orbitCheckBox");
 
 
   // Slider
@@ -89,6 +89,8 @@ function draw() {
   line(0,0,0,1000); //y-axis
   stroke("green");
   line(0,0,0,0,0,1000); //z-axis
+
+  
 }
 
 // function addPlanet(){
@@ -148,7 +150,9 @@ class Planet{
     this.spinRate = (360/this.rotHr); 
 
     this.planetOrbit = [];
-    this.maxOrbit = 2*PI*this.x;
+    this.maxOrbit = (2*PI*this.x);// /abs(dt/30);
+
+    this.generateOrbit();
   }
 
   calcStar(){
@@ -172,12 +176,34 @@ class Planet{
     pop();
   }
 
-  updateOrbit() {
+  updateOrbit(){
     this.planetOrbit.push(createVector(this.pos.x, 0, this.pos.z));
   
     if (this.planetOrbit.length > this.maxOrbit) {
       this.planetOrbit.shift();
     }
+  }
+
+  generateOrbit(){
+    
+    let angle = (atan2(this.pos.z, this.pos.x));
+    this.planetOrbit = [];
+    let vel = this.vel.copy();
+    let pos = this.pos.copy();
+    let r = pos.mag(); // sun to planet distance
+    let accelMag = -G * sunMass / (r*r); // gravity acceleration
+    let acc = pos.copy().normalize().mult(accelMag); // force acting on planets
+    // while(angle<0 || angle>1){
+    for(let i = 0; i<100; i++){
+      vel.add(p5.Vector.mult(acc, -dt / 2));
+      pos.add(p5.Vector.mult(vel, -dt));
+      r = pos.mag(); // sun to planet distance
+      accelMag = -G * sunMass / (r*r); // gravity acceleration
+      acc = pos.copy().normalize().mult(accelMag); // force acting on planets
+      vel.add(p5.Vector.mult(acc, -dt /2));
+      this.planetOrbit.push(createVector(pos.x, 0, pos.z));
+    }
+
   }
 
   move(dt){
@@ -237,8 +263,11 @@ class Planet{
     this.calcStar();
     this.move(-dt);
     this.display();
-    this.updateOrbit();
-    this.orbit();
+    //this.updateOrbit();
+    if(document.getElementById("orbitCheckBox").checked){
+      this.orbit();
+    }
+    
     
 
   }
