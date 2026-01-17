@@ -6,24 +6,19 @@
 
 // Physics Constants
 const G = 1;
-const sunMass = 1;
+let sunMass = 1;
 let sunD = 200;
 
 // Time
-let dt = 0;
+let dt = 1;
 let timeBox = dt;
 let timeSlider;
 
 // Planet Textures
 let sunT;
-let mercuryT;
-let venusT;
-let earthT;
-let marsT;
-let jupiterT;
-let uranusT;
-let neptuneT;
-let satRingT;
+let mercuryT, venusT, earthT, marsT;
+let jupiterT, saturnT, uranusT, neptuneT; 
+let jupRingT, satRingT, uraRingT, nepRingT;
 
 // Planets Array
 let planets = [];
@@ -46,13 +41,14 @@ async function setup(){
   planets.push(new Planet(72, 6, venusT, 177.4, 5832, 0)); // Venus
   planets.push(new Planet(100, 6.3, earthT, -23.4, 24, 0)); // Earth
   planets.push(new Planet(152, 3.4, marsT, -25.2, 25, 0)); // Mars
-  planets.push(new Planet(520, 70, jupiterT, -3, 10, 0)); // Jupiter
-  planets.push(new Planet(954, 58, saturnT, -26.7, 11, 1)); // Saturn
-  planets.push(new Planet(1922, 25, uranusT, 97.8, 17, 2)) // Uranus
-  planets.push(new Planet(3007, 24, neptuneT, -28.3, 16, 0)) // Neptune
+  planets.push(new Planet(520, 70, jupiterT, -3, 10, 1)); // Jupiter
+  planets.push(new Planet(954, 58, saturnT, -26.7, 11, 2)); // Saturn
+  planets.push(new Planet(1922, 25, uranusT, 97.8, 17, 3)) // Uranus
+  planets.push(new Planet(3007, 24, neptuneT, -28.3, 16, 4)) // Neptune
 }
 
-async function loadAssets(){ // Pre load planet textures
+async function loadAssets(){ // Pre load textures
+  // Planets
   sunT = await loadImage("assets/textures/sun.jpg");
   mercuryT = await loadImage("assets/textures/mercury.jpg");
   venusT = await loadImage("assets/textures/venus.jpg");
@@ -62,8 +58,12 @@ async function loadAssets(){ // Pre load planet textures
   saturnT = await loadImage("assets/textures/saturn.jpg");
   uranusT = await loadImage("assets/textures/uranus.jpg");
   neptuneT = await loadImage("assets/textures/neptune.jpg");
+
+  // Rings
+  jupRingT = await loadImage("assets/textures/jupiterring.jpg");
   satRingT = await loadImage("assets/textures/saturnring.jpg");
-  uranusRingT = await loadImage("assets/textures/uranusring.jpg");
+  uraRingT = await loadImage("assets/textures/uranusring.jpg");
+  nepRingT = await loadImage("assets/textures/neptunering.png");
 }
 
 function draw() {
@@ -75,9 +75,6 @@ function draw() {
   for(let o of planets){
     o.allFunction();
   }
-
-  // // Checkbox
-  // orbitCheckBox = document.getElementById("orbitCheckBox");
 
 
   // Slider
@@ -105,10 +102,14 @@ function mouseDragged(){
 
 function keyPressed(){
   if(keyCode === 13){   // ENTER is pressed
+    // Time
     timeBox = parseInt(document.getElementById("timeTextBox").value);
     timeBox = constrain(timeBox, -500, 500);
     document.getElementById("timeSlider").value = timeBox;
     document.getElementById("timeTextBox").value = timeBox;
+
+    // Sun
+    sunMass = parseInt(document.getElementById("sunMassText").value)
   }
 }
 
@@ -235,20 +236,24 @@ class Planet{
 
 
     // Ring Structures
-    if(this.ring === 1){  // Saturn
+    if(this.ring === 1){  // Jupiter
       push();
-      // rotateX(90);
-      drawRing(67, 137, satRingT, 250)
-      // texture(satRingT);
-      // torus(137, 60, 100, 2)
+      drawRing(92, 226, jupRingT, 250)
       pop();
     }
-    else if(this.ring === 2){ // Uranus
+    else if(this.ring === 2){  // Saturn
       push();
-      drawRing(37, 60, uranusRingT, 200)
-      // rotateX(90);
-      // texture(satRingT);
-      // torus(60, 23, 100, 2)
+      drawRing(67, 137, satRingT, 250)
+      pop();
+    }
+    else if(this.ring === 3){ // Uranus
+      push();
+      drawRing(37, 60, uraRingT, 200)
+      pop();
+    }
+    else if(this.ring === 4){ // Neptune
+      push();
+      drawRing(41, 64, nepRingT, 200)
       pop();
     }
 
