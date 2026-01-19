@@ -3,7 +3,6 @@
 // December 1, 2025
 
 // Global Variables
-
 // Physics Constants  
 const G = 1;
 
@@ -27,17 +26,19 @@ let jupiterT, saturnT, uranusT, neptuneT;
 let jupRingT, satRingT, uraRingT, nepRingT;
 
 // Additional Planets
-let terrestrialT, gasT, gasRingT;
+let terrestrialT = [];
+let gasT = [];
 
 // Planets Array
 let planets = [];
+let terPlanets = [];
+let gasPlanets = [];
 
 // Orbit 
 let orbit = [];
 let orbitCheckBox;
 
 async function setup() {
-
   await loadAssets();
 
   const canvas = createCanvas(windowWidth * 0.75, windowHeight, WEBGL);
@@ -54,6 +55,18 @@ async function setup() {
   planets.push(new Planet(satX, 58, saturnT, -26.7, 11, 2)); // Saturn
   planets.push(new Planet(uraX, 25, uranusT, 97.8, 17, 3)) // Uranus
   planets.push(new Planet(nepX, 24, neptuneT, -28.3, 16, 4)) // Neptune
+
+  // Button
+  let addTerButton = document.getElementById("addTer");
+  let remTerButton = document.getElementById("remTer");
+  let addGasButton = document.getElementById("addGas");
+  let remGasButton = document.getElementById("remGas");
+
+  // Call function when button clicked
+  addTerButton.addEventListener("click", addTerPlanet);
+  remTerButton.addEventListener("click", removeAllTer);
+  addGasButton.addEventListener("click", addGasPlanet);
+  remGasButton.addEventListener("click", removeAllGas);
 }
 
 async function loadAssets() { // Pre load textures
@@ -75,36 +88,110 @@ async function loadAssets() { // Pre load textures
   nepRingT = await loadImage("assets/textures/neptunering.png");
 
   // Additional Planets
-  terrestrialT = await loadImage("assets/textures/saturn.jpg");
+  for (let i = 0; i < 5; i++) {
+    terrestrialT.push(await loadImage("assets/textures/terrestrial" + i + ".jpg"));
+    gasT.push(await loadImage("assets/textures/gas" + i + ".jpg"));
+  }
+
 }
 
 function draw() {
   background(0);
+
   star(sunR);
 
   orbitControl(); // allows camera to orbit and move
 
-  for (let o of planets) {
-    o.allFunction();
+  // Existing Planets
+  for (let p of planets) {
+    p.allFunction();
   }
 
+  // Additional Terrestrial Planets
+  for (let t of terPlanets) {
+    t.allFunction();
+  }
 
-  // Slider
+  // Additional Gas Planets
+  for (let g of gasPlanets) {
+    g.allFunction();
+  }
+
+  // Time Slider
   dt = parseInt(document.getElementById("timeSlider").value);
 
-
-
-  stroke("red"); //x-axis
-  line(0, 0, 1000, 0);
-  stroke("blue");
-  line(0, 0, 0, 1000); //y-axis
-  stroke("green");
-  line(0, 0, 0, 0, 0, 1000); //z-axis
+  // Axis
+  // stroke("red"); //x
+  // line(0, 0, 1000, 0);
+  // stroke("blue");
+  // line(0, 0, 0, 1000); //y
+  // stroke("green");
+  // line(0, 0, 0, 0, 0, 1000); //z
 
 }
 
-function addPlanet(x, d, t, theta, rotHr, ring) {
-  planets.push(new Planet(x, d, t, theta, rotHr, ring))
+function addTerPlanet() {
+  // Add terrestrial planets
+  let terM = parseInt(document.getElementById("terMText").value);
+  terM = constrain(terM, 0.05, 1.5);
+  document.getElementById("terMText").value = terM;
+
+  let terX = parseInt(document.getElementById("terXText").value);
+  terX = constrain(terX, 20, 500);
+  document.getElementById("terXText").value = terX;
+
+  let terD = parseInt(document.getElementById("terDText").value);
+  terD = constrain(terD, 3, 10);
+  document.getElementById("terDText").value = terD;
+
+  let terA = parseInt(document.getElementById("terAText").value);
+  terA = constrain(terA, -180, 180);
+  document.getElementById("terAText").value = terA;
+
+  let terHr = parseInt(document.getElementById("terHrText").value);
+  terHr = constrain(terHr, 20, 3000);
+  document.getElementById("terHrText").value = terHr;
+
+  if (terPlanets.length < 5) {
+    terPlanets.push(new Planet(terX, terD, terrestrialT[terPlanets.length], terA, terHr, 0));
+  }
+}
+
+function addGasPlanet() {
+  // Add gas giants
+  let gasM = parseInt(document.getElementById("gasMText").value);
+  gasM = constrain(gasM, 10, 350);
+  document.getElementById("gasMText").value = gasM;
+
+  let gasX = parseInt(document.getElementById("gasXText").value);
+  gasX = constrain(gasX, 500, 3000);
+  document.getElementById("gasXText").value = gasX;
+
+  let gasD = parseInt(document.getElementById("gasDText").value);
+  gasD = constrain(gasD, 15, 80);
+  document.getElementById("gasDText").value = gasD;
+
+  let gasA = parseInt(document.getElementById("gasAText").value);
+  gasA = constrain(gasA, -180, 180);
+  document.getElementById("gasAText").value = gasA;
+
+  let gasHr = parseInt(document.getElementById("gasHrText").value);
+  gasHr = constrain(gasHr, 5, 20);
+  document.getElementById("gasHrText").value = gasHr;
+
+  if (gasPlanets.length < 5) {
+    gasPlanets.push(new Planet(gasX, gasD, gasT[gasPlanets.length], gasA, gasHr, 0));
+  }
+}
+
+function removeAllTer() {
+  // Remove all user terrestrial planets
+  terPlanets = [];
+}
+
+function removeAllGas() {
+  // Remove all user gas giants
+  gasPlanets = [];
 }
 
 function mouseDragged() {
@@ -196,31 +283,14 @@ function keyPressed() {
       planets[7].startTransfer(nepX);
     }
 
-    // Additional Planets
-    if (document.getElementById("terCheckBox").checked) {
-      let terX = parseInt(document.getElementById("terXText").value);
-      terX = constrain(terX, 20, 500);
-      document.getElementById("terXText").value = terX;
 
-      let terD = parseInt(document.getElementById("terDText").value);
-      terD = constrain(terD, 3, 10);
-      document.getElementById("terDText").value = terD;
 
-      let terA = parseInt(document.getElementById("terAText").value);
-      terA = constrain(terA, -180, 180);
-      document.getElementById("terAText").value = terA;
-
-      let terHr = parseInt(document.getElementById("terHrText").value);
-      terHr = constrain(terHr, 10, 3000);
-      document.getElementById("terHrText").value = terHr;
-
-      addPlanet(terX, terD, terrestrialT, terA, terHr, 0);
-    }
 
   }
 }
 
 function star(r) {
+  // Draw Sun
   texture(sunT);
   noStroke();
   sphere(r, 100, 100);
@@ -228,7 +298,7 @@ function star(r) {
 
 // Credit: ChatGPT
 function drawRing(innerR, outerR, tex, detail) {
-  // angleMode(RADIANS);
+  // Draw 2D rings for gas giants
   texture(tex);
   beginShape(TRIANGLE_STRIP);
   for (let i = 0; i <= detail; i++) {
@@ -259,8 +329,13 @@ class Planet {
     this.spinRate = (360 / this.rotHr);
 
     this.planetOrbit = [];
+    this.startAngle = atan2(this.pos.z, this.pos.x);
+    this.dAngle = 0;
+    this.totalAngle = 0;
+    this.lastAngle = this.startAngle;
+
     this.maxOrbit = (2 * PI * this.x);// /abs(dt/30);
-    this.generateOrbit();
+    //this.generateOrbit();
 
     this.transferState = false;
     this.targetR = this.x;
@@ -279,13 +354,12 @@ class Planet {
   }
 
   transferOrbitR() {
-
+    // Smoothly moves planet to new orbit
     if (!this.transferState) return;
 
     let r = this.pos.mag();
     let dr = this.targetR - r;
 
-    // Stop if very close
     if (abs(dr) < 0.01) {
       this.transferState = false;
       let tangent = createVector(-this.pos.z, 0, this.pos.x).normalize();
@@ -293,31 +367,21 @@ class Planet {
       this.vel = p5.Vector.mult(tangent, sqrt(G * sunMass / this.targetR));
       return;
     }
-
-    // Radial direction
     let radial = this.pos.copy().normalize();
-
-    // Smooth translation: respect direction
-    let maxSpeed = 0.01;           // units per frame at dt = 1
-    let moveDist = constrain(dr, -maxSpeed * dt, maxSpeed * dt); // SIGN INCLUDED
-
+    let maxSpeed = 0.01;
+    let moveDist = constrain(dr, -maxSpeed * dt, maxSpeed * dt);
     this.pos.add(p5.Vector.mult(radial, moveDist));
 
-    // Update velocity for circular orbit at new radius
     let speed = sqrt(G * sunMass / this.pos.mag());
     let tangent = createVector(-this.pos.z, 0, this.pos.x).normalize();
     this.vel = p5.Vector.mult(tangent, speed);
   }
 
-
-
-  orbit() { // adds planetary orbit trails 
+  orbit() { // Adds planetary orbit trails 
     push();
     stroke(220);
     strokeWeight(1);
     noFill();
-    rotateX(90);
-    circle(0, 0, 2000);
     beginShape();
     for (let p of this.planetOrbit) {
       vertex(p.x, 0, p.z);
@@ -328,34 +392,24 @@ class Planet {
   }
 
   updateOrbit() {
+    // Remove old orbit points
     this.planetOrbit.push(createVector(this.pos.x, 0, this.pos.z));
+    let currentAngle = atan2(this.pos.z, this.pos.x);
 
-    if (this.planetOrbit.length > this.maxOrbit) {
+    let dAngle = currentAngle - this.lastAngle;
+
+    
+    if (dAngle > 180) dAngle -= 360;
+    if (dAngle < -180) dAngle += 360;
+
+    this.totalAngle += dAngle;
+    this.lastAngle = currentAngle;
+
+    if (abs(this.totalAngle) >360) {
       this.planetOrbit.shift();
     }
   }
 
-  generateOrbit() {
-
-    let angle = (atan2(this.pos.z, this.pos.x));
-    this.planetOrbit = [];
-    let vel = this.vel.copy();
-    let pos = this.pos.copy();
-    let r = pos.mag(); // sun to planet distance
-    let accelMag = -G * sunMass / (r * r); // gravity acceleration
-    let acc = pos.copy().normalize().mult(accelMag); // force acting on planets
-    // while(angle<0 || angle>1){
-    for (let i = 0; i < 100; i++) {
-      vel.add(p5.Vector.mult(acc, -dt / 2));
-      pos.add(p5.Vector.mult(vel, -dt));
-      r = pos.mag(); // sun to planet distance
-      accelMag = -G * sunMass / (r * r); // gravity acceleration
-      acc = pos.copy().normalize().mult(accelMag); // force acting on planets
-      vel.add(p5.Vector.mult(acc, -dt / 2));
-      this.planetOrbit.push(createVector(pos.x, 0, pos.z));
-    }
-
-  }
 
   move(dt) {
     this.vel.add(p5.Vector.mult(this.acc, dt / 2));
@@ -367,7 +421,6 @@ class Planet {
 
 
   display() {
-    //stroke(150,150,180);
     push();
     translate(this.pos.x, 0, this.pos.z);
 
@@ -375,7 +428,6 @@ class Planet {
     rotateZ(this.theta);
 
     // Spin (day/night)
-
     this.spin += this.spinRate * dt;
     rotateY(this.spin);
 
@@ -383,7 +435,6 @@ class Planet {
     //fill(0);
     texture(this.t);
     sphere(this.d, 100, 100);
-
 
     // Ring Structures
     if (this.ring === 1) {  // Jupiter
@@ -407,25 +458,19 @@ class Planet {
       pop();
     }
 
-
-    //console.log(this.pos.x, this.pos.y)
     pop();
   }
 
-
-
   allFunction() {
+    // All class methods in planets
     this.calcStar();
     this.transferOrbitR(dt);
     this.move(-dt);
     this.display();
-    //this.updateOrbit();
+    this.updateOrbit();
     if (document.getElementById("orbitCheckBox").checked) {
       this.orbit();
     }
-
-
-
   }
 
 }
