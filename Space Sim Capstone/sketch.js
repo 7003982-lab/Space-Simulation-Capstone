@@ -25,7 +25,7 @@ let mercuryT, venusT, earthT, marsT;
 let jupiterT, saturnT, uranusT, neptuneT;
 let jupRingT, satRingT, uraRingT, nepRingT;
 
-// Additional Planets
+// Additional Planets Textures
 let terrestrialT = [];
 let gasT = [];
 
@@ -46,15 +46,7 @@ async function setup() {
   angleMode(DEGREES);
   textureMode(NORMAL);
 
-  //                      x,  d,    t,    angle, rotHr, ring
-  planets.push(new Planet(merX, 2.4, mercuryT, 0, 1408, 0)); // Mercury
-  planets.push(new Planet(venX, 6, venusT, 177.4, 5832, 0)); // Venus
-  planets.push(new Planet(earX, 6.3, earthT, -23.4, 24, 0)); // Earth
-  planets.push(new Planet(marX, 3.4, marsT, -25.2, 25, 0)); // Mars
-  planets.push(new Planet(jupX, 70, jupiterT, -3, 10, 1)); // Jupiter
-  planets.push(new Planet(satX, 58, saturnT, -26.7, 11, 2)); // Saturn
-  planets.push(new Planet(uraX, 25, uranusT, 97.8, 17, 3)) // Uranus
-  planets.push(new Planet(nepX, 24, neptuneT, -28.3, 16, 4)) // Neptune
+  pushPlanets();
 
   // Button
   let addTerButton = document.getElementById("addTer");
@@ -62,11 +54,17 @@ async function setup() {
   let addGasButton = document.getElementById("addGas");
   let remGasButton = document.getElementById("remGas");
 
+  let updateButton = document.getElementById("update");
+  let resetButton = document.getElementById("reset");
+
   // Call function when button clicked
   addTerButton.addEventListener("click", addTerPlanet);
   remTerButton.addEventListener("click", removeAllTer);
   addGasButton.addEventListener("click", addGasPlanet);
   remGasButton.addEventListener("click", removeAllGas);
+
+  updateButton.addEventListener("click", updateAll);
+  resetButton.addEventListener("click", resetAll);
 }
 
 async function loadAssets() { // Pre load textures
@@ -130,79 +128,21 @@ function draw() {
 
 }
 
-function addTerPlanet() {
-  // Add terrestrial planets
-  let terM = parseInt(document.getElementById("terMText").value);
-  terM = constrain(terM, 0.05, 1.5);
-  document.getElementById("terMText").value = terM;
-
-  let terX = parseInt(document.getElementById("terXText").value);
-  terX = constrain(terX, 20, 500);
-  document.getElementById("terXText").value = terX;
-
-  let terD = parseInt(document.getElementById("terDText").value);
-  terD = constrain(terD, 3, 10);
-  document.getElementById("terDText").value = terD;
-
-  let terA = parseInt(document.getElementById("terAText").value);
-  terA = constrain(terA, -180, 180);
-  document.getElementById("terAText").value = terA;
-
-  let terHr = parseInt(document.getElementById("terHrText").value);
-  terHr = constrain(terHr, 20, 3000);
-  document.getElementById("terHrText").value = terHr;
-
-  if (terPlanets.length < 5) {
-    terPlanets.push(new Planet(terX, terD, terrestrialT[terPlanets.length], terA, terHr, 0));
-  }
+function pushPlanets(){
+  //                      x,  d,    t,    angle, rotHr, ring
+  planets.push(new Planet(merX, 2.4, mercuryT, 0, 1408, 0)); // Mercury
+  planets.push(new Planet(venX, 6, venusT, 177.4, 5832, 0)); // Venus
+  planets.push(new Planet(earX, 6.3, earthT, -23.4, 24, 0)); // Earth
+  planets.push(new Planet(marX, 3.4, marsT, -25.2, 25, 0)); // Mars
+  planets.push(new Planet(jupX, 70, jupiterT, -3, 10, 1)); // Jupiter
+  planets.push(new Planet(satX, 58, saturnT, -26.7, 11, 2)); // Saturn
+  planets.push(new Planet(uraX, 25, uranusT, 97.8, 17, 3)); // Uranus
+  planets.push(new Planet(nepX, 24, neptuneT, -28.3, 16, 4)); // Neptune
 }
 
-function addGasPlanet() {
-  // Add gas giants
-  let gasM = parseInt(document.getElementById("gasMText").value);
-  gasM = constrain(gasM, 10, 350);
-  document.getElementById("gasMText").value = gasM;
-
-  let gasX = parseInt(document.getElementById("gasXText").value);
-  gasX = constrain(gasX, 500, 3000);
-  document.getElementById("gasXText").value = gasX;
-
-  let gasD = parseInt(document.getElementById("gasDText").value);
-  gasD = constrain(gasD, 15, 80);
-  document.getElementById("gasDText").value = gasD;
-
-  let gasA = parseInt(document.getElementById("gasAText").value);
-  gasA = constrain(gasA, -180, 180);
-  document.getElementById("gasAText").value = gasA;
-
-  let gasHr = parseInt(document.getElementById("gasHrText").value);
-  gasHr = constrain(gasHr, 5, 20);
-  document.getElementById("gasHrText").value = gasHr;
-
-  if (gasPlanets.length < 5) {
-    gasPlanets.push(new Planet(gasX, gasD, gasT[gasPlanets.length], gasA, gasHr, 0));
-  }
-}
-
-function removeAllTer() {
-  // Remove all user terrestrial planets
-  terPlanets = [];
-}
-
-function removeAllGas() {
-  // Remove all user gas giants
-  gasPlanets = [];
-}
-
-function mouseDragged() {
-  // Slider is dragged
-  let sliderValue = document.getElementById("timeSlider").value
-  document.getElementById("timeTextBox").value = sliderValue;
-}
-
-function keyPressed() {
-  if (keyCode === 13) {   // ENTER is pressed
-    // Time
+function updateAll(){
+  // Update all variables in ui
+  // Time
     timeBox = parseInt(document.getElementById("timeTextBox").value);
     timeBox = constrain(timeBox, -500, 500);
     document.getElementById("timeSlider").value = timeBox;
@@ -210,6 +150,8 @@ function keyPressed() {
 
     // Sun
     sunMass = parseInt(document.getElementById("sunMassText").value);
+    sunMass = constrain(sunMass, 0, 50);
+    document.getElementById("sunMassText").value = sunMass;
 
     // Mercury
     merX = parseInt(document.getElementById("merXText").value);
@@ -282,11 +224,129 @@ function keyPressed() {
       planets[7].x = nepX;
       planets[7].startTransfer(nepX);
     }
+}
 
+function resetAll(){
+  // Reset all variables
+  removeAllTer();
+  removeAllGas();
 
+  document.getElementById("timeSlider").value = 1;
+  document.getElementById("timeTextBox").value = 1;
 
+  document.getElementById("orbitCheckBox").checked = false;
 
+  sunMass = 1;
+  document.getElementById("sunMassText").value = sunMass;
+
+  merX = 39;
+  document.getElementById("merXText").value = merX;
+
+  venX = 72;
+  document.getElementById("venXText").value = venX;
+
+  earX = 100;
+  document.getElementById("earXText").value = earX;
+
+  marX = 152;
+  document.getElementById("marXText").value = marX;
+
+  jupX = 520;
+  document.getElementById("jupXText").value = jupX;
+
+  satX = 954;
+  document.getElementById("satXText").value = satX;
+
+  uraX = 1922;
+  document.getElementById("uraXText").value = uraX;
+
+  nepX = 3007;
+  document.getElementById("nepXText").value = nepX;
+
+  document.getElementById("terMText").value = 0.05;
+  document.getElementById("terDText").value = 3;
+  document.getElementById("terXText").value = 20;
+  document.getElementById("terAText").value = 0;
+  document.getElementById("terHrText").value = 20;
+
+  document.getElementById("gasMText").value = 10;
+  document.getElementById("gasDText").value = 15;
+  document.getElementById("gasXText").value = 500;
+  document.getElementById("gasAText").value = 0;
+  document.getElementById("gasHrText").value = 5;
+
+  planets = [];
+  pushPlanets();
+}
+
+function addTerPlanet() {
+  // Add terrestrial planets
+  let terM = parseInt(document.getElementById("terMText").value);
+  terM = constrain(terM, 0.05, 1.5);
+  document.getElementById("terMText").value = terM;
+
+  let terD = parseInt(document.getElementById("terDText").value);
+  terD = constrain(terD, 3, 10);
+  document.getElementById("terDText").value = terD;
+
+  let terX = parseInt(document.getElementById("terXText").value);
+  terX = constrain(terX, 20, 500);
+  document.getElementById("terXText").value = terX;
+
+  let terA = parseInt(document.getElementById("terAText").value);
+  terA = constrain(terA, -180, 180);
+  document.getElementById("terAText").value = terA;
+
+  let terHr = parseInt(document.getElementById("terHrText").value);
+  terHr = constrain(terHr, 20, 3000);
+  document.getElementById("terHrText").value = terHr;
+
+  if (terPlanets.length < 5) {
+    terPlanets.push(new Planet(terX, terD, terrestrialT[terPlanets.length], terA, terHr, 0));
   }
+}
+
+function addGasPlanet() {
+  // Add gas giants
+  let gasM = parseInt(document.getElementById("gasMText").value);
+  gasM = constrain(gasM, 10, 350);
+  document.getElementById("gasMText").value = gasM;
+
+  let gasD = parseInt(document.getElementById("gasDText").value);
+  gasD = constrain(gasD, 15, 80);
+  document.getElementById("gasDText").value = gasD;
+
+  let gasX = parseInt(document.getElementById("gasXText").value);
+  gasX = constrain(gasX, 500, 3000);
+  document.getElementById("gasXText").value = gasX;
+
+  let gasA = parseInt(document.getElementById("gasAText").value);
+  gasA = constrain(gasA, -180, 180);
+  document.getElementById("gasAText").value = gasA;
+
+  let gasHr = parseInt(document.getElementById("gasHrText").value);
+  gasHr = constrain(gasHr, 5, 20);
+  document.getElementById("gasHrText").value = gasHr;
+
+  if (gasPlanets.length < 5) {
+    gasPlanets.push(new Planet(gasX, gasD, gasT[gasPlanets.length], gasA, gasHr, 0));
+  }
+}
+
+function removeAllTer() {
+  // Remove all user terrestrial planets
+  terPlanets = [];
+}
+
+function removeAllGas() {
+  // Remove all user gas giants
+  gasPlanets = [];
+}
+
+function mouseDragged() {
+  // Slider is dragged
+  let sliderValue = document.getElementById("timeSlider").value
+  document.getElementById("timeTextBox").value = sliderValue;
 }
 
 function star(r) {

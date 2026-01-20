@@ -28,7 +28,7 @@
     <div id="row">
       <div id="canvas-container"></div>
       <div id="ui">
-        <p>Press ENTER to update</p>
+        <p><button id="update" type="button" >Update</button> <button id="reset" type="button" >Reset All</button></p>
         <p>Time: <input id="timeTextBox" type="text" size="1" value="1">
         <input id="timeSlider" type="range" min="-500" max="500" value="1"></p>
         <p>Orbit: <input id="orbitCheckBox" type="checkbox" ></p>
@@ -44,7 +44,9 @@
         <p>URANUS: Orbital Radius: <input id="uraXText" type="text" size="1" value="1922"> </p>
         <p>NEPTUNE: Orbital Radius: <input id="nepXText" type="text" size="1" value="3007"> </p>
         
-        <p>TERRESTRIAL PLANET: Mass: <input id="terMText" type="text" size="1" value = "0.05">
+        <p>TERRESTRIAL PLANET: </p>
+        <p>
+          Mass: <input id="terMText" type="text" size="1" value = "0.05">
           Planet Radius: <input id="terDText" type="text" size="1" value = "3">
           Orbital Radius: <input id="terXText" type="text" size="1" value = "20">
           Tilt Angle: <input id="terAText" type="text" size="1" value = "0">
@@ -53,7 +55,9 @@
           <button id="remTer" type="button" >Remove All</button>
         </p>
           
-        <p>GAS GIANT: Mass: <input id="gasMText" type="text" size="1" value = "10">
+        <p>GAS GIANT: </p>
+        <p>
+          Mass: <input id="gasMText" type="text" size="1" value = "10">
           Planet Radius: <input id="gasDText" type="text" size="1" value = "15">
           Orbital Radius: <input id="gasXText" type="text" size="1" value = "500">
           Tilt Angle: <input id="gasAText" type="text" size="1" value = "0">
@@ -61,7 +65,6 @@
           <button id="addGas" type="button" >Add</button>
           <button id="remGas" type="button" >Remove All</button>
         </p>
-
     </div>
     
   </body>
