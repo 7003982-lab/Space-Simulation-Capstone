@@ -129,6 +129,7 @@ function draw() {
 }
 
 function pushPlanets(){
+  // Add planets to the planets array
   //                      x,  d,    t,    angle, rotHr, ring
   planets.push(new Planet(merX, 2.4, mercuryT, 0, 1408, 0)); // Mercury
   planets.push(new Planet(venX, 6, venusT, 177.4, 5832, 0)); // Venus
@@ -452,20 +453,18 @@ class Planet {
   }
 
   updateOrbit() {
-    // Remove old orbit points
-    this.planetOrbit.push(createVector(this.pos.x, 0, this.pos.z));
+    // Update orbit array
     let currentAngle = atan2(this.pos.z, this.pos.x);
-
     let dAngle = currentAngle - this.lastAngle;
 
+    if(abs(dAngle) >1){
+      if(abs(dt)>0){
+      this.planetOrbit.push(createVector(this.pos.x, 0, this.pos.z));
+      }
+      this.lastAngle = currentAngle;
+    }
     
-    if (dAngle > 180) dAngle -= 360;
-    if (dAngle < -180) dAngle += 360;
-
-    this.totalAngle += dAngle;
-    this.lastAngle = currentAngle;
-
-    if (abs(this.totalAngle) >360) {
+    if (this.planetOrbit.length > 360) {
       this.planetOrbit.shift();
     }
   }
